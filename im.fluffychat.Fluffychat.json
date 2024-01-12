@@ -1,0 +1,130 @@
+{
+    "app-id": "im.fluffychat.Fluffychat",
+    "runtime": "org.freedesktop.Platform",
+    "runtime-version": "23.08",
+    "sdk": "org.freedesktop.Sdk",
+    "command": "fluffychat",
+    "separate-locales": false,
+    "finish-args": [
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--socket=wayland",
+        "--socket=pulseaudio",
+        "--share=network",
+        "--device=all",
+        "--filesystem=xdg-download",
+        "--talk-name=org.freedesktop.Notifications",
+        "--own-name=chat.fluffy.fluffychat"
+    ],
+    "modules": [
+        {
+            "name": "libjsoncpp",
+            "only_arches": [
+                "x86_64"
+            ],
+            "buildsystem": "meson",
+            "config-opts": [
+                "--buildtype=release",
+                "--default-library=shared"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.5.tar.gz",
+                    "sha256": "f409856e5920c18d0c2fb85276e24ee607d2a09b5e7d5f0a371368903c275da2"
+                }
+            ]
+        },
+        {
+            "name": "olm",
+            "buildsystem": "cmake",
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://gitlab.matrix.org/matrix-org/olm.git",
+                    "tag": "3.2.14"
+                }
+            ]
+        },
+        {
+            "name": "libsecret",
+            "buildsystem": "meson",
+            "config-opts": [
+                "-Dvapi=false",
+                "-Dgtk_doc=false"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/GNOME/libsecret.git",
+                    "tag": "0.20.5"
+                }
+            ]
+        },
+        {
+            "name": "squashfs-tools",
+            "buildsystem": "simple",
+            "build-commands": [
+                "XZ_SUPPORT=1 LZO_SUPPORT=0 make -C squashfs-tools -j ${FLATPAK_BUILDER_N_JOBS} install INSTALL_DIR=${FLATPAK_DEST}/bin INSTALL_MANPAGES_DIR=${FLATPAK_DEST}/man/man1"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://github.com/plougher/squashfs-tools.git",
+                    "tag": "4.6.1",
+                    "commit": "d8cb82d9840330f9344ec37b992595b5d7b44184",
+                    "x-checker-data": {
+                        "type": "git",
+                        "tag-pattern": "^([\\d.]+)$"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "fluffychat",
+            "buildsystem": "simple",
+            "only-arches": [
+                "aarch64"
+            ],
+            "build-commands": [
+            "unsquashfs -quiet -no-progress *.snap",
+            "cp -r squashfs-root/bin /app",
+            "install -Dm644 squashfs-root/snap/gui/fluffychat.desktop /app/share/applications/im.fluffychat.Fluffychat.desktop",
+            "desktop-file-edit --set-key=Icon --set-value='im.fluffychat.Fluffychat' /app/share/applications/im.fluffychat.Fluffychat.desktop",
+            "install -Dm644 squashfs-root/snap/gui/logo.svg /app/share/icons/hicolor/256x256/apps/im.fluffychat.Fluffychat.svg",
+            "install -Dm644 im.fluffychat.Fluffychat.metainfo.xml /app/share/metainfo/im.fluffychat.Fluffychat.metainfo.xml"
+            ],
+            "sources": [
+                {
+              "type": "file",
+              "filename": "fluffychat.snap",
+              "only-arches": [
+                "aarch64"
+              ],
+              "url": "https://api.snapcraft.io/api/v1/snaps/download/28quftCdnHcLSQgppBfz9LOKcYzCHX4k_1128.snap",
+              "sha256": "d46a1aa4b01d85c6e3aebae6211be581356691de6bebb4a38db39fde8daf73cf",
+              "size": 53214560,
+              "x-checker-data": {
+                  "type": "snapcraft",
+                  "name": "fluffychat",
+                  "channel": "stable",
+                  "architecture": "arm64",
+                  "is-main-source": true
+                    }
+                },
+                {
+                    "type": "file",
+                    "path": "im.fluffychat.Fluffychat.metainfo.xml"
+                },
+                {
+                    "type": "file",
+                    "path": "im.fluffychat.Fluffychat.desktop"
+                },
+                {
+                    "type": "file",
+                    "path": "logo.svg"
+                }
+            ]
+        }
+    ]
+}
